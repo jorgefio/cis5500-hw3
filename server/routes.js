@@ -70,6 +70,7 @@ const random = async function(req, res) {
       // TODO (TASK 3): also return the song title in the response
       res.json({
         song_id: data.rows[0].song_id,
+        title: data.rows[0].title
       });
     }
   });
