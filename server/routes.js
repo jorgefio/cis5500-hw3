@@ -85,7 +85,14 @@ const song = async function(req, res) {
   // TODO (TASK 4): implement a route that given a song_id, returns all information about the song
   // Hint: unlike route 2, you can directly SELECT * and just return data.rows[0]
   // Most of the code is already written for you, you just need to fill in the query
-  connection.query(``, (err, data) => {
+  const songId = req.params.song_id;
+
+  connection.query(`
+    SELECT *
+    FROM Songs
+    WHERE song_id = '${songId}'
+    LIMIT 1
+    `, (err, data) => {
     if (err) {
       console.log(err);
       res.json({});
