@@ -142,7 +142,21 @@ const albums = async function(req, res) {
 // Route 6: GET /album_songs/:album_id
 const album_songs = async function(req, res) {
   // TODO (TASK 7): implement a route that given an album_id, returns all songs on that album ordered by track number (ascending)
-  res.json([]); // replace this with your implementation
+  const albumId = req.params.album_id;
+
+  connection.query(`
+    SELECT song_id, title, number, duration, plays
+    FROM Songs
+    WHERE album_id = '${albumId}'
+    ORDER BY number
+    `, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.json([]);
+    } else {
+      res.json(data.rows);
+    }
+  })
 }
 
 /************************
