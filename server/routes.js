@@ -167,16 +167,41 @@ const album_songs = async function(req, res) {
 const top_songs = async function(req, res) {
   const page = req.query.page;
   // TODO (TASK 8): use the ternary (or nullish) operator to set the pageSize based on the query or default to 10
-  const pageSize = undefined;
+  const pageSize = req.query.page_size ?? 10;
 
   if (!page) {
     // TODO (TASK 9)): query the database and return all songs ordered by number of plays (descending)
     // Hint: you will need to use a JOIN to get the album title as well
-    res.json([]); // replace this with your implementation
+    connection.query(`
+      SELECT s.song_id, s.title, a.album_id, a.title as album, s.plays
+      FROM Songs s
+      JOIN Albums a ON s.album_id = a.album_id
+      ORDER BY s.plays DESC
+      `, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data.rows);
+      }
+    })
   } else {
     // TODO (TASK 10): reimplement TASK 9 with pagination
     // Hint: use LIMIT and OFFSET (see https://www.w3schools.com/php/php_mysql_select_limit.asp)
-    res.json([]); // replace this with your implementation
+    connection.query(`
+      SELECT s.song_id, s.title, a.album_id, a.title as album, s.plays
+      FROM Songs s
+      JOIN Albums a ON s.album_id = a.album_id
+      ORDER BY s.plays DESC
+      LIMIT ${pageSize} OFFSET ${pageSize * (page - 1)}
+      `, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data.rows);
+      }
+    })
   }
 }
 
