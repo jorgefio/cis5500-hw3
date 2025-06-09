@@ -209,7 +209,42 @@ const top_songs = async function(req, res) {
 const top_albums = async function(req, res) {
   // TODO (TASK 11): return the top albums ordered by aggregate number of plays of all songs on the album (descending), with optional pagination (as in route 7)
   // Hint: you will need to use a JOIN and aggregation to get the total plays of songs in an album
-  res.json([]); // replace this with your implementation
+
+  const page = req.query.page;
+  const pageSize = req.query.page_size ?? 10;
+
+  if(!page) {
+    connection.query(`
+      SELECT a.album_id, a.title, SUM(s.plays) as plays
+      FROM Albums a
+      JOIN Songs s ON a.album_id = s.album_id
+      GROUP BY a.album_id, a.title
+      ORDER BY plays DESC
+      `, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data.rows);
+      }
+    })
+  } else {
+    connection.query(`
+      SELECT a.album_id, a.title, SUM(s.plays) as plays
+      FROM Albums a
+      JOIN Songs s ON a.album_id = s.album_id
+      GROUP BY a.album_id, a.title
+      ORDER BY plays DESC
+      LIMIT ${pageSize} OFFSET ${pageSize * (page - 1)}
+      `, (err, data) => {
+      if (err) {
+        console.log(err);
+        res.json([]);
+      } else {
+        res.json(data.rows);
+      }
+    })
+  }
 }
 
 // Route 9: GET /search_albums
