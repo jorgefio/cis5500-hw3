@@ -247,15 +247,43 @@ const top_albums = async function(req, res) {
   }
 }
 
-// Route 9: GET /search_albums
+// Route 9: GET /search_songs
 const search_songs = async function(req, res) {
   // TODO (TASK 12): return all songs that match the given search query with parameters defaulted to those specified in API spec ordered by title (ascending)
   // Some default parameters have been provided for you, but you will need to fill in the rest
   const title = req.query.title ?? '';
   const durationLow = req.query.duration_low ?? 60;
   const durationHigh = req.query.duration_high ?? 660;
+  const playsLow = req.query.plays_low ?? 0;
+  const playsHigh = req.query.plays_high ?? 1100000000;
+  const danceabilityLow = req.query.danceability_low ?? 0;
+  const danceabilityHigh = req.query.danceability_high ?? 1;
+  const energyLow = req.query.energy_low ?? 0;
+  const energyHigh = req.query.energy_high ?? 1;
+  const valenceLow = req.query.valence_low ?? 0;
+  const valenceHigh = req.query.valence_high ?? 1;
+  const explicit = req.query.explicit === 'true' ? 1 : 0;
 
-  res.json([]); // replace this with your implementation
+  connection.query(`
+    SELECT song_id, album_id, title, number, duration, plays, danceability, energy, 
+    valence, tempo, key_mode, explicit
+    FROM Songs
+    WHERE title LIKE '%${title}%' AND 
+      duration BETWEEN ${durationLow} AND ${durationHigh} AND
+      plays BETWEEN ${playsLow} AND ${playsHigh} AND
+      danceability BETWEEN ${danceabilityLow} AND ${danceabilityHigh} AND
+      energy BETWEEN ${energyLow} AND ${energyHigh} AND
+      valence BETWEEN ${valenceLow} AND ${valenceHigh} AND
+      explicit <= ${explicit}
+    ORDER BY title
+    `, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.json([]);
+    } else {
+      res.json(data.rows);
+    }
+  })
 }
 
 module.exports = {
